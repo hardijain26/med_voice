@@ -1,0 +1,6 @@
+{
+  "name": "Med-Voice",
+  "description": "Accessible prescription label simplifier and audio guide for seniors with AI OCR, voice alarms, and multi-language support.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
