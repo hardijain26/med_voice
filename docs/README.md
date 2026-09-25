@@ -16,6 +16,8 @@ This documentation is written for **non-technical readers and product managers**
 | Understand what could go wrong and the limits today | [06 — Limitations & Risks](./06-limitations-and-risks.md) |
 | See where the product could go next | [07 — Roadmap Ideas](./07-roadmap.md) |
 | Look up an unfamiliar word | [08 — Glossary](./08-glossary.md) |
+| Understand the business case (problem, market, model, GTM) | [09 — Business Case](./09-business-case.md) |
+| See the PM skills and no-code build behind it | [10 — PM Skills & the No-Code Build](./10-pm-skills-and-nocode-build.md) |
 
 ## The 30-second version
 
