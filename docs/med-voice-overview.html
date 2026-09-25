@@ -1,0 +1,501 @@
+<title>Med-Voice</title>
+<meta name="description" content="How Med-Voice turns a confusing prescription label into simple, spoken instructions for seniors.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#FAF8F5;
+    --surface:#FFFFFF;
+    --surface-2:#F3EFE8;
+    --ink:#1B2A28;
+    --ink-soft:#586662;
+    --line:#E5DED3;
+    --primary:#0F7A6E;
+    --primary-deep:#0A5B52;
+    --accent:#DE8526;
+    --morning:#E0932F;
+    --night:#5768AE;
+    --good:#2E7D5B;
+    --warn:#B85E17;
+    --shadow:0 1px 2px rgba(27,42,40,.05), 0 8px 24px rgba(27,42,40,.06);
+    --radius:16px;
+    --maxw:1080px;
+
+    --f-display:"Fraunces", Georgia, "Times New Roman", serif;
+    --f-body:"Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#10201E;
+      --surface:#173430;
+      --surface-2:#1E3E38;
+      --ink:#ECF3F0;
+      --ink-soft:#9EB2AC;
+      --line:#294B44;
+      --primary:#41BAA8;
+      --primary-deep:#5CD0BE;
+      --accent:#EFA850;
+      --morning:#F0B357;
+      --night:#8F9DE2;
+      --good:#57C293;
+      --warn:#E29A54;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#10201E;
+    --surface:#173430;
+    --surface-2:#1E3E38;
+    --ink:#ECF3F0;
+    --ink-soft:#9EB2AC;
+    --line:#294B44;
+    --primary:#41BAA8;
+    --primary-deep:#5CD0BE;
+    --accent:#EFA850;
+    --morning:#F0B357;
+    --night:#8F9DE2;
+    --good:#57C293;
+    --warn:#E29A54;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--f-body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:20px}
+  section{padding-block:clamp(48px,7vw,88px)}
+  h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;line-height:1.1;margin:0}
+  p{margin:0}
+  a{color:var(--primary-deep);text-underline-offset:3px}
+
+  .eyebrow{
+    font-family:var(--f-body);
+    font-weight:600;
+    font-size:.78rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--primary);
+    margin:0 0 14px;
+  }
+
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding-block:12px;gap:16px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:1.15rem}
+  .mark{width:30px;height:30px;flex:none}
+  .navlinks{display:flex;gap:22px;font-size:.9rem;font-weight:500}
+  .navlinks a{color:var(--ink-soft);text-decoration:none}
+  .navlinks a:hover{color:var(--ink)}
+  @media(max-width:680px){.navlinks{display:none}}
+
+  /* ---- hero ---- */
+  .hero{padding-top:clamp(40px,6vw,64px)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,56px);align-items:center}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+  .hero h1{font-size:clamp(2.3rem,5.4vw,3.7rem);letter-spacing:-.01em}
+  .hero h1 em{font-style:italic;color:var(--primary)}
+  .lede{font-size:clamp(1.05rem,2vw,1.24rem);color:var(--ink-soft);margin-top:20px;max-width:46ch}
+  .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    padding:8px 14px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow);
+  }
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+
+  /* ---- phone / before-after card ---- */
+  .device{
+    background:var(--surface);border:1px solid var(--line);border-radius:24px;
+    box-shadow:var(--shadow);padding:20px;
+  }
+  .label-strip{
+    background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;
+    padding:14px 16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82rem;color:var(--ink-soft);
+  }
+  .label-strip .tiny{font-size:.72rem;opacity:.85}
+  .transform{display:flex;align-items:center;gap:10px;color:var(--primary);
+    font-weight:600;font-size:.82rem;margin:14px 2px;text-transform:uppercase;letter-spacing:.08em}
+  .transform .rule{height:1px;background:var(--line);flex:1}
+  .med-name{font-family:var(--f-display);font-weight:600;font-size:1.2rem;margin-bottom:2px}
+  .med-sub{color:var(--ink-soft);font-size:.85rem;margin-bottom:16px}
+  .speak{
+    display:flex;gap:12px;background:color-mix(in srgb,var(--primary) 9%, var(--surface));
+    border:1px solid color-mix(in srgb,var(--primary) 22%, var(--line));
+    border-radius:12px;padding:13px 15px;margin-bottom:16px;
+  }
+  .speak .ic{color:var(--primary);flex:none;margin-top:2px}
+  .speak p{font-size:.95rem}
+  .speak .rom{color:var(--ink-soft);font-size:.82rem;margin-top:4px;font-style:italic}
+  .doses{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .dose{border:1px solid var(--line);border-radius:12px;padding:12px}
+  .dose .when{display:flex;align-items:center;gap:7px;font-weight:600;font-size:.82rem;margin-bottom:4px}
+  .dose .time{font-family:var(--f-display);font-size:1.4rem;font-weight:600;font-variant-numeric:tabular-nums}
+  .dose .what{font-size:.78rem;color:var(--ink-soft)}
+  .warnrow{
+    display:flex;gap:9px;align-items:flex-start;margin-top:14px;
+    background:color-mix(in srgb,var(--warn) 12%, var(--surface));
+    border-radius:10px;padding:10px 13px;font-size:.83rem;
+  }
+  .warnrow .ic{color:var(--warn);flex:none;margin-top:1px}
+
+  /* ---- generic section header ---- */
+  .sec-head{max-width:60ch;margin-bottom:40px}
+  .sec-head h2{font-size:clamp(1.7rem,3.6vw,2.5rem);letter-spacing:-.01em}
+  .sec-head p{color:var(--ink-soft);margin-top:14px;font-size:1.05rem}
+
+  .band{background:var(--surface-2)}
+
+  /* ---- problem: two columns ---- */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:720px){.vs{grid-template-columns:1fr}}
+  .vs-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .vs-card h3{font-size:1.15rem;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .vs-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+  .vs-list li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;color:var(--ink-soft)}
+  .vs-list .ic{flex:none;margin-top:3px}
+  .vs-card.bad .ic{color:var(--warn)}
+  .vs-card.good .ic{color:var(--good)}
+  .vs-card.good li{color:var(--ink)}
+
+  /* ---- steps ---- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:step}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px;box-shadow:var(--shadow);position:relative}
+  .step .num{
+    counter-increment:step;font-family:var(--f-display);font-weight:600;
+    font-size:.85rem;color:var(--primary);letter-spacing:.06em;
+  }
+  .step .num::before{content:"Step " counter(step)}
+  .step .ic-wrap{
+    width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin:14px 0 16px;
+    background:color-mix(in srgb,var(--primary) 12%, var(--surface));color:var(--primary);
+  }
+  .step h3{font-size:1.2rem;margin-bottom:8px}
+  .step p{color:var(--ink-soft);font-size:.95rem}
+
+  /* ---- features ---- */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:820px){.feat-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.feat-grid{grid-template-columns:1fr}}
+  .feat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .feat .ic{color:var(--primary);margin-bottom:12px}
+  .feat h3{font-size:1.02rem;margin-bottom:6px}
+  .feat p{font-size:.88rem;color:var(--ink-soft)}
+
+  /* ---- languages ---- */
+  .langs{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .lang{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;box-shadow:var(--shadow);min-width:120px;
+  }
+  .lang .native{font-family:var(--f-display);font-size:1.15rem;font-weight:600}
+  .lang .en{font-size:.76rem;color:var(--ink-soft);letter-spacing:.02em}
+
+  /* ---- metrics ---- */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:820px){.metrics{grid-template-columns:1fr 1fr}}
+  .metric{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .metric .k{font-family:var(--f-display);font-weight:600;font-size:1.02rem;margin-bottom:6px}
+  .metric .d{font-size:.85rem;color:var(--ink-soft)}
+  .metric.star{border-color:color-mix(in srgb,var(--primary) 40%, var(--line));
+    background:color-mix(in srgb,var(--primary) 8%, var(--surface));grid-column:span 4}
+  @media(max-width:820px){.metric.star{grid-column:span 2}}
+  .metric.star .k{color:var(--primary-deep);font-size:1.25rem}
+
+  /* ---- two-col lists (risks / roadmap) ---- */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr;gap:32px}}
+  .clist{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:14px}
+  .clist li{display:flex;gap:12px;align-items:flex-start}
+  .clist .tag{
+    flex:none;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;margin-top:2px;white-space:nowrap;
+  }
+  .tag.hi{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+  .tag.me{background:color-mix(in srgb,var(--night) 16%,transparent);color:var(--night)}
+  .tag.now{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .tag.next{background:color-mix(in srgb,var(--primary) 14%,transparent);color:var(--primary-deep)}
+  .clist .txt{font-size:.94rem}
+  .clist .txt b{font-weight:600}
+  .clist .txt span{color:var(--ink-soft)}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-soft);font-size:.86rem}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+
+  .theme-btn{
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    width:38px;height:38px;display:grid;place-items:center;cursor:pointer;color:var(--ink);flex:none;
+  }
+  .theme-btn:focus-visible,a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+  svg{display:block}
+  .disclaimer{font-size:.82rem;color:var(--ink-soft);max-width:70ch;margin-top:14px;
+    border-left:3px solid var(--line);padding-left:14px}
+  @media (prefers-reduced-motion:no-preference){
+    .pill,.feat,.lang{transition:transform .15s ease}
+    .feat:hover,.lang:hover{transform:translateY(-2px)}
+  }
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="30" height="30" rx="9" fill="var(--primary)"/>
+        <path d="M10 20c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="16" cy="11.5" r="2.4" fill="#fff"/>
+        <path d="M6.5 16h2M23.5 16h2" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+      </svg>
+      <span>Med-Voice</span>
+    </div>
+    <nav class="navlinks">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#metrics">Metrics</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle light and dark theme" title="Toggle theme">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <p class="eyebrow">Product overview · for non-technical readers &amp; PMs</p>
+      <h1>A prescription label most people can't read, turned into <em>spoken help</em> they can.</h1>
+      <p class="lede">Med-Voice reads a prescription from a photo and tells seniors — in their own language — which medicine to take, how much, and exactly when. No tiny print. No medical jargon. No typing.</p>
+      <div class="pills">
+        <span class="pill"><span class="dot" style="background:var(--primary)"></span>11 languages</span>
+        <span class="pill"><span class="dot" style="background:var(--accent)"></span>Voice-first</span>
+        <span class="pill"><span class="dot" style="background:var(--night)"></span>Dose reminders</span>
+        <span class="pill"><span class="dot" style="background:var(--good)"></span>Works offline-safe</span>
+      </div>
+    </div>
+
+    <div class="device" aria-label="Example: a cryptic label becoming simple spoken guidance">
+      <div class="label-strip">
+        <div>Rx · what the bottle actually says</div>
+        <div class="tiny" style="margin-top:6px;color:var(--ink)">AMOXICILLIN 500MG CAP · Take 1 cap PO BID p.c. x7d · Do not exceed prescribed dose</div>
+      </div>
+      <div class="transform"><span class="rule"></span>Med-Voice<span class="rule"></span></div>
+      <div class="med-name">Amoxicillin 500&nbsp;mg</div>
+      <div class="med-sub">Twice daily, after meals</div>
+      <div class="speak">
+        <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>
+        <div>
+          <p lang="hi">"यह दवा दिन में दो बार खाने के बाद पानी के साथ लें। सुबह 8 बजे और रात 8 बजे लें।"</p>
+          <p class="rom">Yeh dawa din mein do baar khane ke baad paani ke saath lein…</p>
+        </div>
+      </div>
+      <div class="doses">
+        <div class="dose">
+          <div class="when" style="color:var(--morning)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6 6l1.4 1.4M17 17l-1.4-1.4"/></svg>
+            After breakfast
+          </div>
+          <div class="time">8:00</div>
+          <div class="what">1 tablet with water</div>
+        </div>
+        <div class="dose">
+          <div class="when" style="color:var(--night)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            After dinner
+          </div>
+          <div class="time">20:00</div>
+          <div class="what">1 tablet with water</div>
+        </div>
+      </div>
+      <div class="warnrow">
+        <svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <span>Don't take on an empty stomach. Call your doctor if you feel unwell.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="problem" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The problem</p>
+      <h2>The instructions are right there. Most people just can't use them.</h2>
+      <p>Poor medication adherence — wrong doses, missed doses, quietly giving up — is one of the biggest preventable causes of avoidable hospital visits. A confusing label is often where it starts.</p>
+    </div>
+    <div class="vs">
+      <div class="vs-card bad">
+        <h3><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>What the senior faces</h3>
+        <ul class="vs-list">
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5" opacity="0"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>Print too tiny to read without a magnifier.</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="1.6"/></svg>Clinical shorthand ("PO BID p.c.") nobody says aloud.</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="1.6"/></svg>Printed in a language they don't read comfortably.</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="1.6"/></svg>"Twice daily" — but no sense of <em>when</em>, or with food.</li>
+        </ul>
+      </div>
+      <div class="vs-card good">
+        <h3><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg>What Med-Voice gives back</h3>
+        <ul class="vs-list">
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Nothing to read — it speaks the instructions aloud.</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Warm, everyday words: "1 tablet after breakfast."</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Their own language, pronounced correctly.</li>
+          <li><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Clear times, tied to meals, with voice reminders.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">How it works</p>
+    <h2>Three taps: point, understand, listen.</h2>
+    <p>The whole experience is built around a user who reads slowly, dislikes typing, and would rather listen. Everything complex happens out of sight.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <span class="num"></span>
+      <div class="ic-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <h3>Point the camera</h3>
+      <p>Aim the phone at the bottle, box, or paper. That's the only input — no typing, no searching for the medicine by name.</p>
+    </div>
+    <div class="step">
+      <span class="num"></span>
+      <div class="ic-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" opacity="0"/><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="4"/><path d="M18 14.5V16l1 1"/></svg></div>
+      <h3>Med-Voice reads it</h3>
+      <p>AI extracts the medicine and dose, rewrites the instructions in plain language, translates them, and splits the day into meal-based dose times.</p>
+    </div>
+    <div class="step">
+      <span class="num"></span>
+      <div class="ic-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg></div>
+      <h3>It speaks &amp; reminds</h3>
+      <p>The instructions are read aloud in the chosen language, shown as a simple schedule, and backed by voice reminders at each dose time.</p>
+    </div>
+  </div>
+  <p class="disclaimer">A quiet piece of cleverness: some phones mispronounce non-English scripts, so Med-Voice also produces a phonetic version in English letters. The phone's voice speaks it smoothly — the user only ever hears the correct pronunciation.</p>
+</section>
+
+<section id="features" class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Features &amp; value</p>
+      <h2>Every feature removes one specific fear or friction.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2.5h5L16 6"/></svg><h3>Photo capture (OCR)</h3><p>Reads a label from a single photo. No reading tiny print, no typing.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h12M4 17h8"/></svg><h3>Plain-language rewrite</h3><p>Turns "1 cap PO BID p.c." into a sentence anyone can follow.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg><h3>Audio guide</h3><p>Speaks it aloud, so the key information is always available by ear.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg><h3>11 languages</h3><p>Delivers everything in the user's own language, not the pharmacy's.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="3"/><path d="M13 6h7M13 10h5"/><path d="M4 19c0-2.2 1.8-4 3-4s3 1.8 3 4"/></svg><h3>Phonetic voice</h3><p>Sounds correct in every language, even on phones with limited fonts.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>Meal-based schedule</h3><p>"After breakfast at 8 AM" removes the guesswork behind "twice daily."</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><h3>Safety warnings</h3><p>Surfaces the one crucial caution before it gets lost in fine print.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9z"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><h3>Voice reminders</h3><p>Alerts at each dose time — turning understanding into action.</p></div>
+      <div class="feat"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><h3>Graceful fallback</h3><p>Gives safe guidance even when the AI is offline — never a dead end.</p></div>
+    </div>
+
+    <div style="margin-top:44px">
+      <p class="eyebrow" style="color:var(--ink-soft)">Supported languages today</p>
+      <div class="langs">
+        <div class="lang"><div class="native">English</div><div class="en">English</div></div>
+        <div class="lang"><div class="native" lang="hi">हिन्दी</div><div class="en">Hindi</div></div>
+        <div class="lang"><div class="native" lang="ta">தமிழ்</div><div class="en">Tamil</div></div>
+        <div class="lang"><div class="native" lang="te">తెలుగు</div><div class="en">Telugu</div></div>
+        <div class="lang"><div class="native" lang="bn">বাংলা</div><div class="en">Bengali</div></div>
+        <div class="lang"><div class="native" lang="mr">मराठी</div><div class="en">Marathi</div></div>
+        <div class="lang"><div class="native" lang="gu">ગુજરાતી</div><div class="en">Gujarati</div></div>
+        <div class="lang"><div class="native" lang="kn">ಕನ್ನಡ</div><div class="en">Kannada</div></div>
+        <div class="lang"><div class="native" lang="ml">മലയാളം</div><div class="en">Malayalam</div></div>
+        <div class="lang"><div class="native" lang="pa">ਪੰਜਾਬੀ</div><div class="en">Punjabi</div></div>
+        <div class="lang"><div class="native" lang="es">Español</div><div class="en">Spanish</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="metrics" class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Measuring success</p>
+    <h2>What a product manager should watch.</h2>
+    <p>From "did they get value once?" to "did it change their life?" — grouped so investment can target the weakest link.</p>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="k">Successful first scan</div><div class="d">Activation — did the first attempt produce usable help?</div></div>
+    <div class="metric"><div class="k">Replay rate</div><div class="d">Comprehension — helpful revisits vs. confusion.</div></div>
+    <div class="metric"><div class="k">Reminder set rate</div><div class="d">Intent — the user commits to taking the medicine.</div></div>
+    <div class="metric"><div class="k">Fallback rate</div><div class="d">Reliability — how often the safety net had to catch.</div></div>
+    <div class="metric star"><div class="k">★ North star — weekly correctly-guided doses acted on</div><div class="d">Accurate guidance delivered <em>and</em> acknowledged as taken. It combines reach, quality, and outcome; every feature should move this number.</div></div>
+  </div>
+  <p class="disclaimer">This is health-adjacent data for a vulnerable group. Measure with restraint: collect the minimum, prefer aggregate counts over anything that identifies a person, and treat trust as the product.</p>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="cols">
+      <div id="risks">
+        <p class="eyebrow">Honest limits</p>
+        <h2 style="font-size:clamp(1.5rem,3vw,2rem)">Risks &amp; how they're handled</h2>
+        <ul class="clist">
+          <li><span class="tag hi">High</span><span class="txt"><b>AI misreads the label.</b> <span>Mitigate with a "does this look right?" confirmation of medicine &amp; dose, plus capture guidance.</span></span></li>
+          <li><span class="tag me">Med</span><span class="txt"><b>AI offline.</b> <span>Fallback gives safe guidance — but it must be clearly marked a general example, never the user's real label.</span></span></li>
+          <li><span class="tag me">Med</span><span class="txt"><b>Translation nuance.</b> <span>Warm, simple phrasing today; add native-speaker review per language, especially for warnings.</span></span></li>
+          <li><span class="tag hi">High</span><span class="txt"><b>Health-data privacy.</b> <span>Transparent permissions; add a plain-language policy on what happens to a photo.</span></span></li>
+        </ul>
+        <p class="disclaimer" style="margin-top:20px">Med-Voice explains an existing prescription. It is not medical advice, not a diagnosis tool, and not a substitute for a doctor or pharmacist.</p>
+      </div>
+      <div id="roadmap">
+        <p class="eyebrow">Where it could go</p>
+        <h2 style="font-size:clamp(1.5rem,3vw,2rem)">Roadmap ideas</h2>
+        <ul class="clist">
+          <li><span class="tag now">Now</span><span class="txt"><b>Confirm-the-reading step.</b> <span>A tiny addition that de-risks the most serious failure mode.</span></span></li>
+          <li><span class="tag now">Now</span><span class="txt"><b>Capture guidance &amp; privacy note.</b> <span>Lift first-scan success; build the trust the product depends on.</span></span></li>
+          <li><span class="tag next">Next</span><span class="txt"><b>Multi-medicine &amp; caregiver mode.</b> <span>One combined daily schedule; a setup flow for family members.</span></span></li>
+          <li><span class="tag next">Next</span><span class="txt"><b>Pharmacy partnerships.</b> <span>Offer Med-Voice at the point of dispensing, using the existing hand-off capability.</span></span></li>
+        </ul>
+        <p class="disclaimer" style="margin-top:20px">Prioritize by three questions: does it protect the user, does it move the north star, and what's the effort vs. the reach?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Med-Voice — accessible prescription simplifier &amp; audio guide for seniors.</span>
+    <span>Product documentation · written for non-technical readers &amp; product managers.</span>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var btn = document.getElementById('themeBtn');
+    var root = document.documentElement;
+    function current(){
+      var t = root.getAttribute('data-theme');
+      if(t) return t;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    try{
+      var saved = localStorage.getItem('mv-theme');
+      if(saved) root.setAttribute('data-theme', saved);
+    }catch(e){}
+    btn.addEventListener('click', function(){
+      var next = current() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try{ localStorage.setItem('mv-theme', next); }catch(e){}
+    });
+  })();
+</script>
